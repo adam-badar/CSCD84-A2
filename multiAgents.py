@@ -44,9 +44,6 @@ class ReflexAgent(Agent):
 
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
-        # print("Legal Moves and their scores")
-        # for i in range(len(legalMoves)):
-        #     print(legalMoves[i], scores[i])
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
@@ -55,8 +52,11 @@ class ReflexAgent(Agent):
         for i in range(len(legalMoves)):
             if (legalMoves[i] == Directions.STOP):
                 continue
+            # ensure that the pacman does not end up in a loop (ie it eats the food if available)
             if (gameState.generatePacmanSuccessor(legalMoves[i]).getFood().count() < gameState.getFood().count()):
-                return legalMoves[i]
+                #ensure that the pacman does not go to a position where the ghost is (float -inf in scores)
+                if (self.evaluationFunction(gameState, legalMoves[i]) != -float('inf')):
+                    return legalMoves[i]
         return legalMoves[chosenIndex]
 
     def evaluationFunction(self, currentGameState: GameState, action):
@@ -85,15 +85,17 @@ class ReflexAgent(Agent):
             return -float('inf')
         if (action == Directions.STOP):
             return -float('inf')
-        # print("New Position: ", newPos, "Action: ", action)
-        # print("New Food: ", newFood)
         return -self.closestFood(newPos, newFood)
-    
+
+
     def manhattanDistance(self, pos1, pos2):
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
-    
+
+
     def euclideanDistance(self, pos1, pos2):
         return ((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)**0.5
+
+
     def closestFood(self, pos, food):
         if len(food) == 0:
             return 0

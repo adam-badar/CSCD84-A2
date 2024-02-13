@@ -81,15 +81,11 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         "*** YOUR CODE HERE ***"
-        if (self.manhattanDistance(newPos, newGhostStates[0].getPosition()) < 1):
+        if (self.euclideanDistance(newPos, newGhostStates[0].getPosition()) < 1):
             return -float('inf')
         if (action == Directions.STOP):
             return -float('inf')
         return -self.closestFood(newPos, newFood)
-
-
-    def manhattanDistance(self, pos1, pos2):
-        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 
     def euclideanDistance(self, pos1, pos2):
@@ -99,12 +95,10 @@ class ReflexAgent(Agent):
     def closestFood(self, pos, food):
         if len(food) == 0:
             return 0
-        if pos == food:
-            return 0
         for i in range(len(food)):
             food[i] = self.euclideanDistance(pos, food[i])
         return min(food)
-    
+
 def scoreEvaluationFunction(currentGameState: GameState):
     """
     This default evaluation function just returns the score of the state.

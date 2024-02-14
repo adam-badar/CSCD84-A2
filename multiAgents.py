@@ -99,6 +99,7 @@ class ReflexAgent(Agent):
             food[i] = self.euclideanDistance(pos, food[i])
         return min(food)
 
+
 def scoreEvaluationFunction(currentGameState: GameState):
     """
     This default evaluation function just returns the score of the state.
@@ -158,7 +159,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        arr = self.Minimax(gameState, self.depth, 0, None)
+        return arr[1]
+
+
+    def Minimax(self, gameState: GameState, depth, agentIndex, action):
+        # Check if terminal state or maximum depth reached
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return [self.evaluationFunction(gameState), action]
+        if agentIndex == gameState.getNumAgents() - 1:
+                depth -= 1
+        # If agent is max (pacman)
+        if agentIndex == 0:
+            actions = gameState.getLegalActions(0)
+            v = -float("inf")
+            best_act = None
+            for action in actions:
+                temp = self.Minimax(gameState.generateSuccessor(0, action), depth, 1, action)[0]
+                if temp > v:
+                    v = temp
+                    best_act = action
+            return [v, best_act]
+        # If agent is min (ghost)
+        else:
+            actions = gameState.getLegalActions(agentIndex)
+            v = float("inf")
+            best_act = None
+            for action in actions:
+                if agentIndex == gameState.getNumAgents() - 1:
+                    temp = self.Minimax(gameState.generateSuccessor(agentIndex, action), depth, 0, action)[0]
+                else:
+                    temp = self.Minimax(gameState.generateSuccessor(agentIndex, action), depth, agentIndex + 1, action)[0]
+                if temp < v:
+                    v = temp
+                    best_act = action
+            return [v, best_act]
+
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """

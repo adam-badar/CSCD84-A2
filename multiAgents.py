@@ -177,6 +177,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             best_act = None
             for action in actions:
                 temp = self.Minimax(gameState.generateSuccessor(0, action), depth, 1, action)[0]
+                #can't use max() since we need to keep track of the action that led to the max value
                 if temp > v:
                     v = temp
                     best_act = action
@@ -191,6 +192,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     temp = self.Minimax(gameState.generateSuccessor(agentIndex, action), depth, 0, action)[0]
                 else:
                     temp = self.Minimax(gameState.generateSuccessor(agentIndex, action), depth, agentIndex + 1, action)[0]
+                #can't use min() since we need to keep track of the action that led to the min value
                 if temp < v:
                     v = temp
                     best_act = action
@@ -209,7 +211,52 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        arr = self.AlphaBeta(gameState, 0, 0, None, -float("inf"), float("inf"))
+        return arr[1]
+
+
+    def AlphaBeta(self, gameState: GameState, depth, agentIndex, action, alpha, beta):
+        # Check if terminal state or maximum depth reached
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return [self.evaluationFunction(gameState), action]
+        # Only decrement depth if all agents have moved
+        if agentIndex == gameState.getNumAgents() - 1:
+                depth += 1
+        # If agent is max (pacman) since we are tyring to maximize the score (evalutaion f'n)
+        if agentIndex == 0:
+            actions = gameState.getLegalActions(0)
+            v = -float("inf")
+            best_act = None
+            for action in actions:
+                temp = self.AlphaBeta(gameState.generateSuccessor(0, action), depth, 1, action, alpha, beta)[0]
+                #can't use max() since we need to keep track of the action that led to the max value
+                if temp > v:
+                    v = temp
+                    best_act = action
+                #prune the tree
+                if temp > beta:
+                    return [v, best_act]
+                alpha = max(alpha, v)
+            return [v, best_act]
+        # If agent is min (ghost)
+        else:
+            actions = gameState.getLegalActions(agentIndex)
+            v = float("inf")
+            best_act = None
+            for action in actions:
+                if agentIndex == gameState.getNumAgents() - 1:
+                    temp = self.AlphaBeta(gameState.generateSuccessor(agentIndex, action), depth, 0, action, alpha, beta)[0]
+                else:
+                    temp = self.AlphaBeta(gameState.generateSuccessor(agentIndex, action), depth, agentIndex + 1, action, alpha, beta)[0]
+                #can't use min() since we need to keep track of the action that led to the min value
+                if temp < v:
+                    v = temp
+                    best_act = action
+                #prune the tree
+                if temp < alpha:
+                    return [v, best_act]
+                beta = min(beta, v)
+            return [v, best_act]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """

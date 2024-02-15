@@ -271,7 +271,41 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        arr = self.Expectimax(gameState, 0, 0, None)
+        return arr[1]
+
+
+    def Expectimax(self, gameState: GameState, depth, agentIndex, action):
+        # Check if terminal state or maximum depth reached
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return [self.evaluationFunction(gameState), action]
+        # Only decrement depth if all agents have moved
+        if agentIndex == gameState.getNumAgents() - 1:
+                depth += 1
+        # If agent is max (pacman) since we are tyring to maximize the score (evalutaion f'n)
+        if agentIndex == 0:
+            actions = gameState.getLegalActions(0)
+            v = -float("inf")
+            best_act = None
+            for action in actions:
+                temp = self.Expectimax(gameState.generateSuccessor(0, action), depth, 1, action)[0]
+                #can't use max() since we need to keep track of the action that led to the max value
+                if temp > v:
+                    v = temp
+                    best_act = action
+            return [v, best_act]
+        # If agent is min (ghost)
+        else:
+            actions = gameState.getLegalActions(agentIndex)
+            v = 0
+            best_act = None
+            for action in actions:
+                p = 1 / len(actions)
+                if agentIndex == gameState.getNumAgents() - 1:
+                    v += self.Expectimax(gameState.generateSuccessor(agentIndex, action), depth, 0, action)[0] * p
+                else:
+                    v += self.Expectimax(gameState.generateSuccessor(agentIndex, action), depth, agentIndex + 1, action)[0] * p
+            return [v, best_act]
 
 def betterEvaluationFunction(currentGameState: GameState):
     """

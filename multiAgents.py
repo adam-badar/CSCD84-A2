@@ -159,17 +159,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        arr = self.Minimax(gameState, self.depth, 0, None)
+        arr = self.Minimax(gameState, 0, 0, None)
         return arr[1]
 
 
     def Minimax(self, gameState: GameState, depth, agentIndex, action):
         # Check if terminal state or maximum depth reached
-        if gameState.isWin() or gameState.isLose() or depth == 0:
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
             return [self.evaluationFunction(gameState), action]
+        # Only decrement depth if all agents have moved
         if agentIndex == gameState.getNumAgents() - 1:
-                depth -= 1
-        # If agent is max (pacman)
+                depth += 1
+        # If agent is max (pacman) since we are tyring to maximize the score (evalutaion f'n)
         if agentIndex == 0:
             actions = gameState.getLegalActions(0)
             v = -float("inf")
